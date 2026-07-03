@@ -43,7 +43,7 @@
         .question-box { background-color: #fdfffe; border: 1px solid #d4edda; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
         .question-text { font-weight: bold; margin-bottom: 8px; color: #155724; font-size: 14px; }
         .text-answer { width: 95%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; }
-        .formula-input { width: 120px; padding: 5px; text-align: center; font-size: 14px; border: 1px solid #ced4da; border-radius: 4px; }
+        .formula-input { width: 150px; padding: 5px; text-align: center; font-size: 14px; border: 1px solid #ced4da; border-radius: 4px; }
 
         /* 성공 모달 */
         .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
@@ -60,13 +60,13 @@
 <body>
 
     <h1>하노이 탑과 수열의 귀납적 정의</h1>
-    <div class="subtitle">시뮬레이터로 실험하고 우측 학습지를 완성해 보세요! (고2 대수 단원)</div>
+    <div class="subtitle">시뮬레이터로 실험하고 우측 학습지를 완성해 보세요!</div>
     
     <div class="main-layout">
         
         <div class="simulator-section">
             <div class="controls">
-                <label for="diskCount">원판 개수($n$): </label>
+                <label for="diskCount">원판 개수(n): </label>
                 <select id="diskCount" onchange="initGame()">
                     <option value="3" selected>3개</option>
                     <option value="4">4개</option>
@@ -102,38 +102,38 @@
             <table class="math-table">
                 <thead>
                     <tr>
-                        <th>원판 개수 ($n$)</th>
-                        <th>최소 이동 횟수 ($a_n$)</th>
+                        <th>원판 개수 (n)</th>
+                        <th>최소 이동 횟수 (a_n)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>$n = 3$</td><td><input type="number" class="math-input" id="ans_a3" placeholder="a₃"> 회</td></tr>
-                    <tr><td>$n = 4$</td><td><input type="number" class="math-input" id="ans_a4" placeholder="a₄"> 회</td></tr>
-                    <tr><td>$n = 5$</td><td><input type="number" class="math-input" id="ans_a5" placeholder="a₅"> 회</td></tr>
-                    <tr><td>$n = 6$</td><td><input type="number" class="math-input" id="ans_a6" placeholder="a₆"> 회</td></tr>
-                    <tr><td>$n = 7$</td><td><input type="number" class="math-input" id="ans_a7" placeholder="a₇"> 회</td></tr>
+                    <tr><td>n = 3</td><td><input type="number" class="math-input" id="ans_a3" placeholder="a₃"> 회</td></tr>
+                    <tr><td>n = 4</td><td><input type="number" class="math-input" id="ans_a4" placeholder="a₄"> 회</td></tr>
+                    <tr><td>n = 5</td><td><input type="number" class="math-input" id="ans_a5" placeholder="a₅"> 회</td></tr>
+                    <tr><td>n = 6</td><td><input type="number" class="math-input" id="ans_a6" placeholder="a₆"> 회</td></tr>
+                    <tr><td>n = 7</td><td><input type="number" class="math-input" id="ans_a7" placeholder="a₇"> 회</td></tr>
                 </tbody>
             </table>
 
             <div class="section-title">활동 2: 이웃하는 항 사이의 관계 추측</div>
             
             <div class="question-box">
-                <div class="question-text">[질문 1] 앞의 항($a_n$)에 어떤 연산을 하면 다음 항($a_{n+1}$)이 되나요? 발견한 규칙을 말로 써보세요.</div>
-                <input type="text" class="text-answer" placeholder="예: 앞의 항에 2를 곱하고 1을 더한다.">
+                <div class="question-text">[질문 1] 앞의 항(a_n)에 어떤 연산을 하면 다음 항(a_n+1)이 되나요? 발견한 규칙을 말로 써보세요.</div>
+                <input type="text" class="text-answer" placeholder="여기에 답변을 기술하세요.">
             </div>
 
             <div class="question-box">
                 <div class="question-text">[질문 2] 관찰한 규칙을 바탕으로 수열의 귀납적 관계식(점화식)을 완성해 보세요.</div>
                 <div style="font-size: 15px; font-weight: bold; margin-top: 5px;">
-                    $a_1 = 1$ <br><br>
-                    $a_{n+1} = $ <input type="text" class="formula-input" placeholder="예: 2a_n + 1">
+                    a_1 = 1 <br><br>
+                    a_n+1 = <input type="text" class="formula-input" placeholder="관계식을 입력하세요.">
                 </div>
             </div>
             
             <div class="question-box">
-                <div class="question-text">[질문 3] 수열 $a_n$의 일반항을 지수 형태로 추측해 보세요.</div>
+                <div class="question-text">[질문 3] 수열 a_n의 일반항을 지수 형태로 추측해 보세요.</div>
                 <div style="font-size: 15px; font-weight: bold; margin-top: 5px;">
-                    $a_n = $ <input type="text" class="formula-input" placeholder="예: 2^n - 1">
+                    a_n = <input type="text" class="formula-input" placeholder="일반항 식을 입력하세요.">
                 </div>
             </div>
             
@@ -242,9 +242,8 @@
             if (moveCount === currentMinMoves) {
                 title.innerText = "🎉 미션 성공! 🎉";
                 title.style.color = "#27ae60";
-                msg.innerHTML = `원판 ${n}개를 최소 이동 횟수인 <span class="highlight">${moveCount}번</span>만에 모두 옮겼습니다!<br>우측 학습지의 <b>a_${n}</b> 칸에 이 값을 기록해 보세요.`;
+                msg.innerHTML = `원판 ${n}개를 최소 이동 횟수인 <span class="highlight">${moveCount}번</span>만에 모두 옮겼습니다!<br>우측 학습지의 <b>a_` + n + `</b> 칸에 이 값을 기록해 보세요.`;
                 
-                // 학생이 성공하면 우측 학습지의 해당 칸에 정답을 자동으로 슬쩍 적어주는 편의 기능
                 const targetInput = document.getElementById('ans_a' + n);
                 if(targetInput) targetInput.value = moveCount;
             } else {
@@ -259,7 +258,6 @@
             document.getElementById('successOverlay').style.display = 'none';
         }
 
-        // 학습지 정답 체크 채점 로직
         function checkWorksheet() {
             const a3 = document.getElementById('ans_a3').value;
             const a4 = document.getElementById('ans_a4').value;
@@ -273,7 +271,7 @@
             }
 
             if(a3 == 7 && a4 == 15 && a5 == 31 && a6 == 63 && a7 == 127) {
-                alert("✨ 대단합니다! 표의 값들을 완벽하게 구하셨습니다.\n\n이제 질문 2와 질문 3에 적은 자신만의 식(2a_n+1, 2^n-1)이 맞는지 주변 친구들과 토론해 보세요!");
+                alert("✨ 대단합니다! 표의 값들을 완벽하게 구하셨습니다.\\n\\n이제 질문 2와 질문 3에 적은 자신만의 식이 맞는지 주변 친구들과 토론해 보세요!");
             } else {
                 alert("❌ 표에 잘못 구한 값이 있습니다. 시뮬레이터를 다시 정교하게 움직여 보거나 규칙성을 다시 한 번 고민해 보세요!");
             }
