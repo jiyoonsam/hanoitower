@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>하노이 탑 - 수열 탐구 시뮬레이터 (3~7개)</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; text-align: center; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        .controls { background-color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: inline-block; margin-bottom: 20px; }
+        label { font-weight: bold; margin-right: 10px; }
+        select { padding: 6px 10px; font-size: 14px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 7px 15px; font-size: 14px; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 4px; margin-left: 10px; transition: background 0.2s; }
+        button:hover { background-color: #2980b9; }
+
+        /* 원판 7개를 수용하기 위해 높이를 350px로, 너비를 700px로 확장 */
+        .game-container { display: flex; justify-content: center; align-items: flex-end; height: 350px; width: 700px; margin: 0 auto; border-bottom: 8px solid #34495e; position: relative; padding-bottom: 15px; background-color: white; border-radius: 4px 4px 0 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* 기둥 높이를 280px로 조절 */
+        .peg { width: 14px; height: 280px; background-color: #95a5a6; border-radius: 7px; position: relative; margin: 0 100px; cursor: pointer; display: flex; flex-direction: column-reverse; align-items: center; transition: background 0.2s; }
+        .peg:hover { background-color: #7f8c8d; }
+        /* 원판이 많아졌으므로 높이를 24px로 살짝 슬림하게 조정 */
+        .disk { height: 24px; border-radius: 12px; color: white; font-weight: bold; font-size: 12px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 3px; box-shadow: 0 3px 6px rgba(0,0,0,0.16); transition: width 0.2s, background-color 0.2s; }
+
+        .status-panel { margin-top: 25px; display: flex; justify-content: center; gap: 30px; font-size: 18px; }
+        .status-item { background-color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); min-width: 150px; }
+        .status-label { font-size: 14px; color: #7f8c8d; margin-bottom: 5px; display: block; }
+        .status-value { font-weight: bold; font-size: 24px; }
+        
+        #moveCount { color: #e74c3c; }
+        #minMoves { color: #27ae60; }
+        
+        .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .success-modal { background: white; padding: 30px 50px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; }
+        .success-modal h2 { color: #27ae60; margin-top: 0; }
+        .success-modal p { font-size: 18px; margin: 10px 0 20px; }
+        .highlight { font-weight: bold; color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <h1>하노이 탑: 최소 이동 횟수 탐구</h1>
+    
+    <div class="controls">
+        <label for="diskCount">원판 개수($n$): </label>
+        <select id="diskCount" onchange="initGame()">
+            <option value="3" selected>3개</option>
+            <option value="4">4개</option>
+            <option value="5">5개</option>
+            <option value="6">6개</option>
+            <option value="7">7개</option>
+        </select>
+        <button onclick="initGame()">게임 초기화</button>
+    </div>
+
+    <div class="game-container">
+        <div class="peg" id="peg1" onclick="selectPeg(1)"></div>
+        <div class="peg" id="peg2" onclick="selectPeg(2)"></div>
+        <div class="peg" id="peg3" onclick="selectPeg(3)"></div>
+    </div>
+
+    <div class="status-panel">
+        <div class="status-item">
+            <span class="status-label">현재 이동 횟수</span>
+            <span class="status-value" id="moveCount">0</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">목표 (최소 횟수)</span>
+            <span class="status-value" id="minMoves">0</span>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-modal">
+            <h2 id="successTitle">미션 완료!</h2>
+            <p id="successMessage"></p>
+            <button onclick="closeSuccess()">다시 하기</button>
+            <button onclick="closeSuccess(); initGame();" style="background-color: #27ae60;">다음 레벨 도전</button>
+        </div>
+    </div>
+
+    <script>
+        // 7개 원판을 지원하기 위해 색상 배열을 7개로 확장
+        const colors = ['#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c'];
+        let pegs = { 1: [], 2: [], 3: [] };
+        let moveCount = 0;
+        let selectedPeg = null;
+        let currentMinMoves = 0;
+
+        function initGame() {
+            const n = parseInt(document.getElementById('diskCount').value);
+            pegs = { 1: [], 2: [], 3: [] };
+            moveCount = 0;
+            selectedPeg = null;
+            
+            currentMinMoves = Math.pow(2, n) - 1; 
+            document.getElementById('minMoves').innerText = currentMinMoves;
+            document.getElementById('moveCount').innerText = moveCount;
+            document.getElementById('moveCount').style.color = '#e74c3c';
+
+            const p1 = document.getElementById('peg1');
+            const p2 = document.getElementById('peg2');
+            const p3 = document.getElementById('peg3');
+            p1.innerHTML = ''; p2.innerHTML = ''; p3.innerHTML = '';
+            p1.style.outline = 'none'; p2.style.outline = 'none'; p3.style.outline = 'none';
+
+            for (let i = n; i >= 1; i--) {
+                let disk = document.createElement('div');
+                disk.className = 'disk';
+                // 원판 너비 가중치를 (i * 24 + 40)으로 조절하여 7번 원판도 기둥 간격을 침범하지 않도록 최적화
+                disk.style.width = (i * 24 + 40) + 'px';
+                disk.style.backgroundColor = colors[i - 1];
+                disk.innerText = i;
+                disk.dataset.size = i;
+                pegs[1].push(disk);
+                p1.appendChild(disk);
+            }
+            closeSuccess();
+        }
+
+        function selectPeg(pegNum) {
+            const pegEl = document.getElementById('peg' + pegNum);
+            
+            if (selectedPeg === null) {
+                if (pegs[pegNum].length === 0) return;
+                selectedPeg = pegNum;
+                pegEl.style.outline = '3px solid #34495e';
+            } else {
+                const sourcePeg = selectedPeg;
+                const targetPeg = pegNum;
+                pegEl.style.outline = 'none';
+                document.getElementById('peg' + sourcePeg).style.outline = 'none';
+                selectedPeg = null;
+
+                if (sourcePeg === targetPeg) return;
+
+                const srcDisks = pegs[sourcePeg];
+                const tgtDisks = pegs[targetPeg];
+                
+                if (srcDisks.length === 0) return;
+                
+                const movingDisk = srcDisks[srcDisks.length - 1];
+                const topTgtDisk = tgtDisks[tgtDisks.length - 1];
+
+                if (topTgtDisk && parseInt(movingDisk.dataset.size) > parseInt(topTgtDisk.dataset.size)) {
+                    alert('잘못된 이동: 큰 원판은 작은 원판 위에 놓을 수 없습니다.');
+                    return;
+                }
+
+                srcDisks.pop();
+                tgtDisks.push(movingDisk);
+                document.getElementById('peg' + targetPeg).appendChild(movingDisk);
+                
+                moveCount++;
+                document.getElementById('moveCount').innerText = moveCount;
+
+                if (moveCount > currentMinMoves) {
+                    document.getElementById('moveCount').style.color = '#7f8c8d';
+                }
+
+                const n = parseInt(document.getElementById('diskCount').value);
+                if ((targetPeg === 2 || targetPeg === 3) && tgtDisks.length === n) {
+                    showSuccess(n);
+                }
+            }
+        }
+
+        function showSuccess(n) {
+            const overlay = document.getElementById('successOverlay');
+            const title = document.getElementById('successTitle');
+            const msg = document.getElementById('successMessage');
+            
+            if (moveCount === currentMinMoves) {
+                title.innerText = "🎉 완벽합니다! 🎉";
+                title.style.color = "#27ae60";
+                msg.innerHTML = `원판 ${n}개를 최적의 경로인 <span class="highlight">${moveCount}번</span>만에 모두 옮겼습니다.<br>수열 $a_${n}$의 값은 ${moveCount}입니다!`;
+            } else {
+                title.innerText = "성공! 하지만...";
+                title.style.color = "#e67e22";
+                msg.innerHTML = `원판 ${n}개를 ${moveCount}번만에 옮겼습니다.<br>하지만 최소 이동 횟수는 <span class="highlight">${currentMinMoves}번</span>입니다.<br>더 효율적인 방법을 찾아볼까요?`;
+            }
+            overlay.style.display = 'flex';
+        }
+
+        function closeSuccess() {
+            document.getElementById('successOverlay').style.display = 'none';
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
